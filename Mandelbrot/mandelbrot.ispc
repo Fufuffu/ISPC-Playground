@@ -12,11 +12,11 @@ static inline int mandel(float c_re, float c_im, int count) {
     return i;
 }
 
-export void mandelbrot_ispc(uniform float x0, uniform float y0,
-                            uniform float x1, uniform float y1,
-                            uniform int width, uniform int height,
-                            uniform int maxIterations,
-                            uniform int output[]) {
+export void mandelbrot_rgb(uniform float x0, uniform float y0,
+                           uniform float x1, uniform float y1,
+                           uniform int width, uniform int height,
+                           uniform int maxIterations,
+                           uniform uint32 output[]) {
     float dx = (x1 - x0) / width;
     float dy = (y1 - y0) / height;
 
@@ -26,7 +26,22 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
             float y = y0 + j * dy;
 
             int index = j * width + i;
-            output[index] = mandel(x, y, maxIterations);
+            int iterations = mandel(x, y, maxIterations);
+
+            uint32 color = 0xFF000000;
+
+            if (iterations < maxIterations) {
+                uint8 r = (uint8) iterations * 2;
+                uint8 g = (uint8) iterations * 4;
+                uint8 b = (uint8) iterations * 8;
+
+                color = (((uint32)255 << 24) |
+                         ((uint32)b << 16) |
+                         ((uint32)g << 8)  |
+                          (uint32)r);
+            }
+
+            output[index] = color;
         }
     }
 }

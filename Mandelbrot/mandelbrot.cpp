@@ -8,18 +8,19 @@
 using namespace ispc;
 
 int main() {
-    unsigned int width = 768, height = 512;
+    unsigned int width = 1920, height = 1080;
     float x0 = -2., x1 = 1.;
     float y0 = -1., y1 = 1.;
-    int maxIterations = 256;
-    int *buf = new int[width*height];
+    int maxIterations = 512;
+    // Each uint32_t is a color: a b g r (as uint8_t)
+    uint32_t *buf = new uint32_t[width*height];
 
-    mandelbrot_ispc(x0, y0, x1, y1, width, height, maxIterations, buf);
+    mandelbrot_rgb(x0, y0, x1, y1, width, height, maxIterations, buf);
 
-    std::cout << "MANDELBROT DONE";
+    std::cout << "MANDELBROT DONE \n";
 
-    int channels = 1;
-    stbi_write_png("test.png", width, height, channels, buf, width*channels);
+    int colorChannels = 4;
+    stbi_write_png("test.png", width, height, colorChannels, reinterpret_cast<uint8_t*> (buf), width*colorChannels);
 
     std::cout << "WRITE DONE";
 }
